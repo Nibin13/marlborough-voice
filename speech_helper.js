@@ -53,9 +53,20 @@ window.eloquentSpeech = {
     };
 
     recog.onerror = function(event) {
-      if (onError) onError(event.error || 'Microphone error occurred');
-      if (onStatus) onStatus('idle');
       self.isListening = false;
+      if (onStatus) onStatus('idle');
+      if (event.error === 'no-speech') {
+        return;
+      }
+      if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+        if (onError) onError('Microphone access was blocked. Please tap allow microphone in your browser address bar.');
+        return;
+      }
+      if (event.error === 'network') {
+        if (onError) onError('Browser speech service timed out. Tap the microphone again or try the sample presets!');
+        return;
+      }
+      if (onError) onError(event.error || 'Microphone error occurred');
     };
 
     recog.onend = function() {
